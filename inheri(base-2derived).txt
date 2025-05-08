@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vehicle Inheritance Demo</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 40px;
+      text-align: center;
+    }
+    select, button {
+      padding: 10px;
+      margin: 10px;
+    }
+    #output {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #2a7d2e;
+    }
+  </style>
+</head>
+<body>
+  <h1>Choose a Vehicle</h1>
+  <select id="vehicleSelect">
+    <option value="car">Car</option>
+    <option value="bicycle">Bicycle</option>
+  </select>
+  <button onclick="showMovement()">Show Movement</button>
+  <div id="output"></div>
+
+  <script src="vehicle.js"></script> <!-- Compiled JS file -->
+</body>
+</html>
+
+
+
+
+//vechile.ts////
+
+// Base class
+class Vehicle {
+    name: string;
+  
+    constructor(name: string) {
+      this.name = name;
+    }
+  
+    move(): string {
+      return `${this.name} is moving`;
+    }
+  }
+  //explanation
+  General class that defines any vehicle.
+Has a name and a method move() returning generic movement text.
+
+
+
+
+
+
+  // Derived class: Car
+  class Car extends Vehicle {
+    constructor(name: string) {
+      super(name);
+    }
+  
+    move(): string {
+      return `${this.name} is driving on the road`;
+    }
+  }
+  //explanation
+  Specializes the Vehicle class.
+Overrides move() to describe car-specific movement.
+
+
+
+
+
+
+
+
+  // Derived class: Bicycle
+  class Bicycle extends Vehicle {
+    constructor(name: string) {
+      super(name);
+    }
+  
+    move(): string {
+      return `${this.name} is pedaling on the bike lane`;
+    }
+  }
+
+  //explanation
+  Purpose:
+Also inherits from Vehicle.
+Overrides move() with a bicycle-specific message.
+
+
+
+
+
+  // Function connected to HTML button
+  function showMovement(): void {
+    const vehicleSelect = document.getElementById("vehicleSelect") as HTMLSelectElement;
+    const output = document.getElementById("output")!;
+    let vehicle: Vehicle;
+  
+    if (vehicleSelect.value === "car") {
+      vehicle = new Car("Car");
+    } else {
+      vehicle = new Bicycle("Bicycle");
+    }
+  
+    output.textContent = vehicle.move();
+  }
+  
+
+  
+  //explanation
+  Triggered by a button click in HTML.
+
+Reads dropdown value (car or bicycle)
+
+Instantiates the appropriate class.
+
+Calls move() method.
+
+Displays the result in the HTML element with ID output.
+

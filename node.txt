@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Student Result Submission</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    input, textarea { display: block; margin: 10px 0; padding: 8px; width: 300px; }
+    button { padding: 10px 20px; }
+  </style>
+</head>
+<body>
+  <h2>Submit Student Result</h2>
+
+  <form id="resultForm">
+    <input type="text" id="class" placeholder="Class" required />
+    <input type="text" id="prn" placeholder="PRN Number" required />
+    <input type="text" id="name" placeholder="Name" required />
+    <input type="email" id="email" placeholder="Email" required />
+    <textarea id="marks" placeholder='Marks (e.g. {"Math":90,"CS":85})' required></textarea>
+    <button type="submit">Submit</button>
+  </form>
+
+  <script>
+    document.getElementById("resultForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      const data = {
+        class: document.getElementById("class").value,
+        prn: document.getElementById("prn").value,
+        name: document.getElementById("name").value,
+        email: document.getElementById("email").value,
+        marks: JSON.parse(document.getElementById("marks").value)
+      };
+
+      const response = await fetch("http://localhost:3000/api/results", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+      alert(result.message || "Submitted!");
+    });
+  </script>
+</body>
+</html>
+
+
+
+//node
+npm init -y
+npm install express mongoose cors
+
+
+server.js
+
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+
+const app = express();
+const PORT = 3000;
+
+// Connect to MongoDB
+mongoose.connect("mongodb://localhost:27017/studentResults", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log("MongoDB connected"))
+.catch(err => console.error("MongoDB error:", err));
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Mongoose schema
+const studentSchema = new mongoose.Schema({
+  class: String,
+  prn: String,
+  name: String,
+  email: String,
+  marks: Object
+});
+const Student = mongoose.model("Student", studentSchema);
+
+// API endpoint
+app.post("/api/results", async (req, res) => {
+  try {
+    const student = new Student(req.body);
+    await student.save();
+    res.json({ message: "Result saved successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to save result" });
+  }
+});
+
+app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+
+
+
+
+//node server.js

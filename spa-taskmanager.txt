@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager</title>
+</head>
+<body>
+
+    <div ng-app="taskApp" ng-controller="taskController">
+        <h1>Task Manager</h1>
+        
+        <!-- Task Input Section -->
+        <div>
+            <input type="text" ng-model="taskText" placeholder="Enter a task" />
+            <button ng-click="addTask()">Add Task</button>
+        </div>
+
+        <!-- Task List Section -->
+        <div>
+            <h3>Tasks</h3>
+            <ul>
+                <li ng-repeat="task in tasks">
+                    <span ng-class="{'completed': task.completed}">{{ task.text }}</span>
+                    <button ng-click="toggleCompletion(task)">Mark as {{ task.completed ? 'Incomplete' : 'Completed' }}</button>
+                    <button ng-click="removeTask(task)">Delete</button>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
+
+
+
+script.js
+angular.module('taskApp', [])
+  .controller('taskController', function($scope, taskService) {
+    // Initializing the task array by fetching data from taskService
+    $scope.tasks = taskService.getTasks();
+
+    // Function to add a new task
+    $scope.addTask = function() {
+      if ($scope.taskText) {
+        const newTask = { text: $scope.taskText, completed: false };
+        taskService.addTask(newTask);  // Add the task to service
+        $scope.taskText = '';  // Clear the input field
+        $scope.tasks = taskService.getTasks();  // Update task list
+      }
+    };
+
+    // Function to toggle task completion status
+    $scope.toggleCompletion = function(task) {
+      taskService.toggleTaskCompletion(task);
+      $scope.tasks = taskService.getTasks();  // Update task list after toggling completion
+    };
+
+    // Function to remove a task
+    $scope.removeTask = function(task) {
+      taskService.removeTask(task);
+      $scope.tasks = taskService.getTasks();  // Update task list after removal
+    };
+  })
+  .service('taskService', function() {
+    // Initial tasks (In a real-world app, this could be fetched from a database)
+    let tasks = [];
+
+    // Function to get all tasks
+    this.getTasks = function() {
+      return tasks;
+    };
+
+    // Function to add a new task
+    this.addTask = function(task) {
+      tasks.push(task);
+    };
+
+    // Function to toggle task completion status
+    this.toggleTaskCompletion = function(task) {
+      task.completed = !task.completed;
+    };
+
+    // Function to remove a task
+    this.removeTask = function(task) {
+      const index = tasks.indexOf(task);
+      if (index !== -1) {
+        tasks.splice(index, 1);
+      }
+    };
+  });

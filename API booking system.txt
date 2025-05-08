@@ -1,0 +1,183 @@
+appointment-system/
+├── models/
+│   ├── Doctor.js
+│   └── Appointment.js
+├── routes/
+│   └── api.js
+├── server.js
+
+index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Appointment Booking</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        h1 { color: #4CAF50; }
+        .doctor { border: 1px solid #ccc; padding: 10px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+
+    <h1>Doctors List</h1>
+    <button onclick="fetchDoctors()">View Doctors</button>
+    <div id="doctors"></div>
+
+    <h2>Book Appointment</h2>
+    <form onsubmit="bookAppointment(event)">
+        <input type="text" id="patientName" placeholder="Patient Name" required><br><br>
+        <input type="text" id="doctorId" placeholder="Doctor ID" required><br><br>
+        <input type="text" id="timeSlot" placeholder="Time Slot (e.g. 10:00)" required><br><br>
+        <button type="submit">Book</button>
+    </form>
+
+    <p id="message"></p>
+
+    <script>
+        function fetchDoctors() {
+            fetch('http://localhost:5000/api/doctors')
+                .then(res => res.json())
+                .then(doctors => {
+                    const container = document.getElementById('doctors');
+                    container.innerHTML = '';
+                    doctors.forEach(doc => {
+                        const div = document.createElement('div');
+                        div.className = 'doctor';
+                        div.innerHTML = `
+                            <strong>ID:</strong> ${doc._id}<br>
+                            <strong>Name:</strong> ${doc.name}<br>
+                            <strong>Specialization:</strong> ${doc.specialization}<br>
+                            <strong>Available Slots:</strong> ${doc.availableSlots.join(', ')}
+                        `;
+                        container.appendChild(div);
+                    });
+                });
+        }
+
+        function bookAppointment(event) {
+            event.preventDefault();
+            const patientName = document.getElementById('patientName').value;
+            const doctorId = document.getElementById('doctorId').value;
+            const timeSlot = document.getElementById('timeSlot').value;
+
+            fetch('http://localhost:5000/api/appointments', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ patientName, doctorId, timeSlot })
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('message').textContent = data.message;
+                fetchDoctors(); // refresh the doctors list to update available slots
+            });
+        }
+    </script>
+
+</body>
+</html>
+
+
+
+
+models/Doctor.js
+
+const mongoose = require('mongoose');
+
+const doctorSchema = new mongoose.Schema({
+    name: String,
+    specialization: String,
+    availableSlots: [String], // e.g. ["10:00", "11:00", "12:00"]
+});
+
+module.exports = mongoose.model('Doctor', doctorSchema);
+
+
+Appointment.js
+const mongoose = require('mongoose');
+
+const appointmentSchema = new mongoose.Schema({
+    patientName: String,
+    doctorId: { type: mongoose.Schema.Types.ObjectId, ref: 'Doctor' },
+    timeSlot: String,
+});
+
+module.exports = mongoose.model('Appointment', appointmentSchema);
+
+
+routes/api.js
+const express = require('express');
+const router = express.Router();
+const Doctor = require('../models/Doctor');
+const Appointment = require('../models/Appointment');
+
+// Get list of doctors
+router.get('/doctors', async (req, res) => {
+    const doctors = await Doctor.find();
+    res.json(doctors);
+});
+
+// Book an appointment
+router.post('/appointments', async (req, res) => {
+    const { patientName, doctorId, timeSlot } = req.body;
+
+    const doctor = await Doctor.findById(doctorId);
+    if (!doctor || !doctor.availableSlots.includes(timeSlot)) {
+        return res.status(400).json({ message: 'Slot not available' });
+    }
+
+    const appointment = new Appointment({ patientName, doctorId, timeSlot });
+    await appointment.save();
+
+    // Remove slot from doctor
+    doctor.availableSlots = doctor.availableSlots.filter(slot => slot !== timeSlot);
+    await doctor.save();
+
+    res.json({ message: 'Appointment booked successfully' });
+});
+
+// Cancel an appointment
+router.delete('/appointments/:id', async (req, res) => {
+    const appointment = await Appointment.findById(req.params.id);
+    if (!appointment) return res.status(404).json({ message: 'Not found' });
+
+    // Re-add the slot
+    const doctor = await Doctor.findById(appointment.doctorId);
+    doctor.availableSlots.push(appointment.timeSlot);
+    await doctor.save();
+
+    await appointment.deleteOne();
+    res.json({ message: 'Appointment cancelled' });
+});
+
+module.exports = router;
+
+
+server.js
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+
+const app = express();
+app.use(cors());
+app.use(bodyParser.json());
+
+// MongoDB connection
+mongoose.connect('mongodb://localhost:27017/appointments', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+}).then(() => console.log('MongoDB connected'));
+
+// Routes
+app.use('/api', require('./routes/api'));
+
+const PORT = 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+
+
+
+npm init -y
+npm install express mongoose body-parser cors
+node server.js

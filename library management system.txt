@@ -1,0 +1,89 @@
+//main.ts//
+
+import { Book } from "./model/Book";
+import { User } from "./model/User";
+import { Transaction } from "./model/Transaction";
+
+// Sample data
+const book1 = new Book(1, "The Alchemist", "Paulo Coelho");
+const book2 = new Book(2, "1984", "George Orwell");
+
+const user1 = new User(1, "Manas");
+
+Transaction.borrowBook(user1, book1);  // ✅ Success
+Transaction.borrowBook(user1, book1);  // ❌ Error: already borrowed
+
+Transaction.returnBook(user1, book1);  // ✅ Success
+Transaction.returnBook(user1, book1);  // ❌ Error: user does not have it
+
+
+
+//create folder model inside them create 3 files Book.ts,User.ts,Transaction.ts//
+//Book.ts
+export class Book {
+    constructor(
+      public id: number,
+      public title: string,
+      public author: string,
+      public available: boolean = true
+    ) {}
+  
+    borrow(): void {
+      if (!this.available) throw new Error(`${this.title} is already borrowed.`);
+      this.available = false;
+    }
+  
+    returnBook(): void {
+      this.available = true;
+    }
+  }
+  
+  //User.ts
+  export class User {
+    constructor(
+      public id: number,
+      public name: string,
+      public borrowedBooks: number[] = []
+    ) {}
+  
+    borrowBook(bookId: number): void {
+      this.borrowedBooks.push(bookId);
+    }
+  
+    returnBook(bookId: number): void {
+      const index = this.borrowedBooks.indexOf(bookId);
+      if (index > -1) {
+        this.borrowedBooks.splice(index, 1);
+      } else {
+        throw new Error(`User does not have book ID ${bookId}`);
+      }
+    }
+  }
+  
+
+  //Transaction.ts
+  import { Book } from "./Book";
+import { User } from "./User";
+
+export class Transaction {
+  static borrowBook(user: User, book: Book): void {
+    try {
+      book.borrow();
+      user.borrowBook(book.id);
+      console.log(`${user.name} borrowed "${book.title}".`);
+    } catch (err) {
+      console.error("Error:", (err as Error).message);
+    }
+  }
+
+  static returnBook(user: User, book: Book): void {
+    try {
+      book.returnBook();
+      user.returnBook(book.id);
+      console.log(`${user.name} returned "${book.title}".`);
+    } catch (err) {
+      console.error("Error:", (err as Error).message);
+    }
+  }
+}
+

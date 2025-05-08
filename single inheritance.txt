@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TypeScript Inheritance Example</title>
+</head>
+<body>
+    <h2>Vehicle Inheritance Example</h2>
+    <button onclick="runApp()">Show Car Info</button>
+    <p id="output"></p>
+
+    <script src="main.js"></script>
+</body>
+</html>
+
+
+main.ts
+// main.ts
+
+class Vehicle {
+    brand: string;
+
+    constructor(brand: string) {
+        this.brand = brand;
+    }
+
+    displayInfo(): string {
+        return `This is a vehicle from brand: ${this.brand}`;
+    }
+}
+
+class Car extends Vehicle {
+    model: string;
+
+    constructor(brand: string, model: string) {
+        super(brand);
+        this.model = model;
+    }
+
+    // Overriding displayInfo
+    displayInfo(): string {
+        return `This is a car: ${this.brand} - ${this.model}`;
+    }
+}
+
+// Export to use in browser (optional if using a bundler)
+(window as any).runApp = () => {
+    const car = new Car("Toyota", "Corolla");
+    document.getElementById("output")!.innerText = car.displayInfo();
+};

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Calculator</h1>
+    <input id="num1" type="number" placeholder="Enter the value">
+    <input id="num2" type="number" placeholder="Enter the value">
+
+    <select id="operation">
+    <option value="add">+</option>
+    <option value="subtract">-</option>
+    <option value="Multiply">*</option>
+    <option value="Divide">/</option>
+    </select>
+
+    <button onclick="calculate()">Calculate</button onclick>
+
+        <p id="result">Result </p>
+
+        <script src="calculator.js"></script>
+</body>
+</html>
+
+//calculator.ts
+function calculate(): void {
+    const num1Input = document.getElementById("num1") as HTMLInputElement;
+    const num2Input = document.getElementById("num2") as HTMLInputElement;
+    const operationSelect = document.getElementById("operation") as HTMLSelectElement;
+    const resultPara = document.getElementById("result") as HTMLParagraphElement;
+
+    const num1 = parseFloat(num1Input.value);
+    const num2 = parseFloat(num2Input.value);
+    const operation = operationSelect.value;
+
+    let result: number | string;
+
+    if (isNaN(num1) || isNaN(num2)) {
+        result = "Please enter valid numbers.";
+    } else {
+        switch (operation) {
+            case "add":
+                result = num1 + num2;
+                break;
+            case "subtract":
+                result = num1 - num2;
+                break;
+            case "multiply":
+                result = num1 * num2;
+                break;
+            case "divide":
+                result = num2 !== 0 ? num1 / num2 : "Cannot divide by zero";
+                break;
+            default:
+                result = "Invalid operation.";
+        }
+    }
+
+    resultPara.textContent = `Result: ${result}`;
+}
+

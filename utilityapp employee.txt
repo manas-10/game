@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Employee Salary Manager</title>
+</head>
+<body>
+    <h1>Employee Salary Report</h1>
+    <ul id="salary-list"></ul>
+
+    <script src="salaryUtility.js"></script> <!-- Compiled JS -->
+</body>
+</html>
+
+
+//salaryUtility.ts
+var employees = [
+    { name: "Alice", baseSalary: 50000, performanceRating: 10 },
+    { name: "Bob", baseSalary: 40000, performanceRating: 5 },
+    { name: "Charlie", baseSalary: 60000, performanceRating: 10 },
+    { name: "Diana", baseSalary: 45000, performanceRating: 5 }
+];
+var getBonusPercentage = function (rating) {
+    return rating === 10 ? 0.2 : 0.1;
+};
+var calculateFinalSalary = function (employee) {
+    return employee.baseSalary + employee.baseSalary * getBonusPercentage(employee.performanceRating);
+};
+var printSalaries = function () {
+    console.log("Employee Salary Report:");
+    employees.forEach(function (emp) {
+        var finalSalary = calculateFinalSalary(emp).toFixed(2);
+        console.log("".concat(emp.name, " - Final Salary: \u20B9").concat(finalSalary));
+    });
+};
+printSalaries();

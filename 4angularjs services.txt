@@ -1,0 +1,63 @@
+In AngularJS, services are objects or functions that are used to share data and logic across different parts of an application. Here are four common AngularJS services:
+
+1. $http Service
+Purpose: This service is used to make HTTP requests to the server to retrieve or send data.
+
+Example:
+
+angular.module('myApp', [])
+  .controller('myController', function($http) {
+    $http.get('https://api.example.com/data')
+      .then(function(response) {
+        console.log(response.data);
+      }, function(error) {
+        console.error(error);
+      });
+  });
+
+2. $scope Service
+Purpose: The $scope service is used to bind data between the controller and the view. It allows you to define variables and functions within the controller and access them in the HTML template.
+
+Example:
+
+angular.module('myApp', [])
+  .controller('myController', function($scope) {
+    $scope.message = "Hello, AngularJS!";
+  });
+
+
+3. $route Service
+Purpose: The $route service is part of AngularJS's routing module. It is used for configuring routes and handling navigation between views in a single-page application (SPA).
+
+Example:
+angular.module('myApp', ['ngRoute'])
+  .config(function($routeProvider) {
+    $routeProvider
+      .when('/home', {
+        templateUrl: 'home.html',
+        controller: 'HomeController'
+      })
+      .when('/about', {
+        templateUrl: 'about.html',
+        controller: 'AboutController'
+      })
+      .otherwise({
+        redirectTo: '/home'
+      });
+  });
+
+4. $timeout Service
+Purpose: The $timeout service is used to delay the execution of a function or expression. It works like JavaScript’s setTimeout() method.
+
+Example:
+angular.module('myApp', [])
+  .controller('myController', function($scope, $timeout) {
+    $scope.message = "This message will change in 3 seconds.";
+    
+    $timeout(function() {
+      $scope.message = "The message has been updated!";
+    }, 3000);
+  });
+
+
+

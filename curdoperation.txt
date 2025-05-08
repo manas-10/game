@@ -1,0 +1,95 @@
+mkdir student-results
+cd student-results
+npm init -y
+npm install express mongoose cors
+touch server.js
+mongod
+node server.js
+
+
+server.js
+
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+
+const app = express();
+const PORT = 3000;
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// MongoDB connection
+mongoose.connect("mongodb://localhost:27017/studentResults", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log("MongoDB connected"))
+.catch(err => console.error("MongoDB error:", err));
+
+// Schema
+const studentSchema = new mongoose.Schema({
+  class: String,
+  prn: String,
+  name: String,
+  email: String,
+  marks: Object
+});
+const Student = mongoose.model("Student", studentSchema);
+
+// Create (POST)
+app.post("/students", async (req, res) => {
+  try {
+    const student = new Student(req.body);
+    await student.save();
+    res.status(201).json({ message: "Student added", student });
+  } catch (error) {
+    res.status(500).json({ error: "Error adding student" });
+  }
+});
+
+// Read all (GET)
+app.get("/students", async (req, res) => {
+  try {
+    const students = await Student.find();
+    res.json(students);
+  } catch (error) {
+    res.status(500).json({ error: "Error fetching students" });
+  }
+});
+
+// Read one by PRN (GET)
+app.get("/students/:prn", async (req, res) => {
+  try {
+    const student = await Student.findOne({ prn: req.params.prn });
+    if (student) res.json(student);
+    else res.status(404).json({ error: "Student not found" });
+  } catch (error) {
+    res.status(500).json({ error: "Error fetching student" });
+  }
+});
+
+// Update (PUT)
+app.put("/students/:prn", async (req, res) => {
+  try {
+    const updated = await Student.findOneAndUpdate({ prn: req.params.prn }, req.body, { new: true });
+    if (updated) res.json({ message: "Student updated", updated });
+    else res.status(404).json({ error: "Student not found" });
+  } catch (error) {
+    res.status(500).json({ error: "Error updating student" });
+  }
+});
+
+// Delete (DELETE)
+app.delete("/students/:prn", async (req, res) => {
+  try {
+    const deleted = await Student.findOneAndDelete({ prn: req.params.prn });
+    if (deleted) res.json({ message: "Student deleted" });
+    else res.status(404).json({ error: "Student not found" });
+  } catch (error) {
+    res.status(500).json({ error: "Error deleting student" });
+  }
+});
+
+app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));

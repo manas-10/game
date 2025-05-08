@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shape Area Calculation</title>
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <h1>Shape Area Calculation</h1>
+  
+  <div>
+    <h2>Rectangle</h2>
+    <p id="rectangleArea"></p>
+  </div>
+
+  <div>
+    <h2>Circle</h2>
+    <p id="circleArea"></p>
+  </div>
+
+  <div>
+    <h2>Triangle</h2>
+    <p id="triangleArea"></p>
+  </div>
+
+</body>
+</html>
+
+
+script.ts
+// Shape Interface
+interface Shape {
+  getArea(): number;
+}
+
+// Rectangle Class implementing Shape interface
+class Rectangle implements Shape {
+  constructor(private width: number, private height: number) {}
+
+  getArea(): number {
+    return this.width * this.height;
+  }
+}
+
+// Circle Class implementing Shape interface
+class Circle implements Shape {
+  constructor(private radius: number) {}
+
+  getArea(): number {
+    return Math.PI * this.radius * this.radius;
+  }
+}
+
+// Triangle Class implementing Shape interface
+class Triangle implements Shape {
+  constructor(private base: number, private height: number) {}
+
+  getArea(): number {
+    return (this.base * this.height) / 2;
+  }
+}
+
+// Example usage
+const rectangle = new Rectangle(5, 10);
+const circle = new Circle(7);
+const triangle = new Triangle(6, 8);
+
+// Display the areas in the HTML
+document.getElementById("rectangleArea")!.textContent = `Area of Rectangle: ${rectangle.getArea()}`;
+document.getElementById("circleArea")!.textContent = `Area of Circle: ${circle.getArea().toFixed(2)}`;
+document.getElementById("triangleArea")!.textContent = `Area of Triangle: ${triangle.getArea()}`;

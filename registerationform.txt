@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+</head>
+<body ng-app="registrationApp" ng-controller="registrationController">
+
+    <h1>Registration Form</h1>
+
+    <form name="registrationForm" ng-submit="submitForm()" novalidate>
+        <!-- Name Field -->
+        <div>
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" ng-model="user.name" required>
+            <span ng-show="registrationForm.name.$touched && registrationForm.name.$invalid">Name is required.</span>
+        </div>
+
+        <!-- Email Field -->
+        <div>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" ng-model="user.email" required>
+            <span ng-show="registrationForm.email.$touched && registrationForm.email.$invalid">Please enter a valid email.</span>
+        </div>
+
+        <!-- Password Field -->
+        <div>
+            <label for="password">Password (6 digits):</label>
+            <input type="password" id="password" name="password" ng-model="user.password" ng-pattern="/^\d{6}$/" required>
+            <span ng-show="registrationForm.password.$touched && registrationForm.password.$invalid">
+                Password must be exactly 6 digits.
+            </span>
+        </div>
+
+        <button type="submit" ng-disabled="registrationForm.$invalid">Register</button>
+    </form>
+
+    <div ng-show="formSubmitted">
+        <h2>Form Submitted!</h2>
+        <p>Name: {{ user.name }}</p>
+        <p>Email: {{ user.email }}</p>
+        <p>Password: {{ user.password }}</p>
+    </div>
+
+    <script>
+        var app = angular.module('registrationApp', []);
+
+        app.controller('registrationController', function($scope) {
+            $scope.user = {};
+            $scope.formSubmitted = false;
+
+            // Handle form submission
+            $scope.submitForm = function() {
+                if ($scope.registrationForm.$valid) {
+                    $scope.formSubmitted = true;
+                }
+            };
+        });
+    </script>
+
+</body>
+</html>

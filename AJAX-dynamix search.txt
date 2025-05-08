@@ -1,0 +1,87 @@
+product-search-app/
+├── public/
+│   └── index.html
+├── server.js
+
+
+server.js
+const express = require('express');
+const app = express();
+const cors = require('cors');
+
+app.use(cors());
+app.use(express.static('public'));
+
+const products = [
+    { id: 1, name: "Laptop" },
+    { id: 2, name: "Smartphone" },
+    { id: 3, name: "Keyboard" },
+    { id: 4, name: "Monitor" },
+    { id: 5, name: "Headphones" },
+    { id: 6, name: "Mouse" },
+    { id: 7, name: "Charger" },
+];
+
+app.get('/search', (req, res) => {
+    const query = req.query.q?.toLowerCase() || '';
+    const results = products.filter(p => p.name.toLowerCase().includes(query));
+    res.json(results);
+});
+
+app.listen(3000, () => console.log('Server running on http://localhost:3000'));
+
+
+INDEX.HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Product Search</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        input { padding: 8px; width: 300px; }
+        ul { list-style-type: none; padding: 0; }
+        li { padding: 5px; background: #f0f0f0; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+    <h1>Product Catalog Search</h1>
+    <input type="text" id="searchBox" placeholder="Search products...">
+    <ul id="results"></ul>
+
+    <script>
+        const searchBox = document.getElementById('searchBox');
+        const resultsList = document.getElementById('results');
+
+        searchBox.addEventListener('input', () => {
+            const query = searchBox.value;
+
+            fetch(`/search?q=${encodeURIComponent(query)}`)
+                .then(res => res.json())
+                .then(products => {
+                    resultsList.innerHTML = '';
+                    products.forEach(p => {
+                        const li = document.createElement('li');
+                        li.textContent = p.name;
+                        resultsList.appendChild(li);
+                    });
+                });
+        });
+    </script>
+
+</body>
+</html>
+
+
+
+EXPLANATION
+server.js-->The server receives the query from the frontend.
+It filters the product list based on whether the product's name contains the query string.
+It returns the filtered results as JSON.
+
+index.html-->As soon as the user types something, the input event triggers.
+JavaScript sends an AJAX GET request to the server at /search?q=...
+It receives a list of matching products and dynamically shows them.
+
+
